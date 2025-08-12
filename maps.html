@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mapa WMS IDECOR con control de capas</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Lista de capas WMS
+    var capas = [
+      {
+        id: "Centros_Salud",
+        name: "Centros de salud"
+      },
+      {
+        id: "cuarteles_bbvv",
+        name: "Cuarteles de bomberos voluntarios"
+      },
+      {
+        id: "area_quemada_2025",
+        name: "Áreas quemadas 2025"
+      },
+      {
+        id: "area_quemada_2024",
+        name: "Áreas quemadas 2024"
+      },
+      {
+        id: "area_quemada_2025",
+        name: "Áreas quemadas 2023"
+      },
+      {
+        id: "red_vial_provincial",
+        name: "Red vial provincial"
+      }
+    ];
+
+    // Crear mapa
+    var leafletMap = L.map('map').setView([-31.4, -64.2], 8);
+
+    // Capa base
+    var baseOSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(leafletMap);
+
+    // Objetos para el control de capas
+    var baseMaps = {
+      "OpenStreetMap": baseOSM
+    };
+    var overlayMaps = {};
+
+    // Crear y agregar capas WMS pero sin añadirlas al mapa de entrada
+    capas.forEach(capa => {
+      var wmsLayer = L.tileLayer.wms(`https://idecor-ws.mapascordoba.gob.ar/geoserver/idecor/${capa.id}/wms`, {
+        layers: `idecor:${capa.id}`,
+        format: 'image/png',
+        transparent: true,
+        attribution: `IDEcor - ${capa.name} - Gobierno de Córdoba`
+      });
+      overlayMaps[capa.name] = wmsLayer;
+    });
+
+    // Control de capas (checkboxes)
+    L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(leafletMap);
+  </script>
+</body>
+
+</html>
